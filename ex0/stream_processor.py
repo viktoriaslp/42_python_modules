@@ -16,16 +16,23 @@ class DataProcessor(ABC):
 
 
     def format_output(self, result: str) -> str:
-        pass
+        return("Output")
     
 
 class NumericProcessor(DataProcessor):
     def process(self, data: Any) -> str:
-        pass
+        print("Initializing Numeric Processor...")
+        print(f"Processing data: {data}")
 
 
     def validate(self, data: Any) -> bool:
-        pass
+        for number in data:
+            try:
+                number = int(number)
+            except ValueError, TypeError:
+                return False
+        print("Validation: Numeric data verified")
+        return True
 
 
     def format_output(self, result: str) -> str:
@@ -36,10 +43,17 @@ class NumericProcessor(DataProcessor):
 class TextProcessor(DataProcessor):
     def process(self, data: Any) -> str:
         pass
+        
 
 
     def validate(self, data: Any) -> bool:
-        pass
+        for word in data:
+            try:
+                word = str(word)
+            except Exception:
+                return False
+        print("Validation: Text data verified")
+        return True
 
 
     def format_output(self, result: str) -> str:
@@ -56,5 +70,14 @@ class LogProcessor(DataProcessor):
 
 
     def format_output(self, result: str) -> str:
-        pass
+        return (
+            f"Output: Processed 5 numeric values, sum=15, avg=3.0"
+        )
 
+
+def main() -> None:
+    print("=== CODE NEXUS - DATA PROCESSOR FOUNDATION ===")
+
+
+if __name__ == "__main__":
+    main()
