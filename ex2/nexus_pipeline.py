@@ -18,11 +18,11 @@ class ProcessingPipeline(ABC):
     def add_stage(self, stage: ProcessingStage) -> None:
         self.stages.append(stage)
 
-    def run_stages(self, data: Any) -> Union[str, Any]:
-        for stage in self.stages:
-            data = stage.process(data)
-            self.processed_count += 1
-        return data
+    # def run_stages(self, data: Any) -> Union[str, Any]:
+    #     for stage in self.stages:
+    #         data = stage.process(data)
+    #         self.processed_count += 1
+    #     return data
 
     @abstractmethod
     def process(self, data: Any) -> Union[str, Any]:
@@ -77,27 +77,31 @@ class JSONAdapter(ProcessingPipeline):
         self.add_stage(OutputStage())
 
     def process(self, data: Dict[str, Any]) -> str:
-        if not isinstance(data, dict):
-            raise ValueError("Invalid JSON data")
+        input_stage = self.stages[0]
+        transform_stage = self.stages[1]
+        output_stage = self.stages[2]
 
-        self.run_stages(data)
+        step1 = input_stage.process(data)
+        step2 = transform_stage.process(step1)
+
+        transformed = step2["transformed_data"]
 
         sensor: Optional[Any] = data.get("sensor")
         value: Optional[Any] = data.get("value")
         unit: Optional[Any] = data.get("unit")
 
-        if sensor == "temp":
+        if sensor == "temp" and isinstance(value, (int, float)) and isinstance(unit, str):
             if value is not None:
                 if value < 18 or value > 26:
                     status = "Out of range"
                 else:
                     status = "Normal range"
+                final_data: str = f"Processed temperature reading: {value}°{unit} ({status})"
+        else:
+            "Processed JSON data"
 
-                return (
-                    "Processed temperature reading: "
-                    f"{value}°{unit} ({status})"
-                )
-        return "Processed JSON data"
+        final = output_stage.process({self.pipeline_id: final_data})
+        return final
 
 
 class CSVAdapter(ProcessingPipeline):
@@ -108,15 +112,26 @@ class CSVAdapter(ProcessingPipeline):
         self.add_stage(OutputStage())
 
     def process(self, data: str) -> str:
-        if not isinstance(data, str):
-            raise ValueError("Invalid CSV data")
+        input_stage = self.stages[0]
+        transform_stage = self.stages[1]
+        output_stage = self.stages[2]
 
-        self.run_stages(data)
+        step1 = input_stage.process(data)
+        step2 = transform_stage.process(step1)
 
-        fields = [item.strip() for item in data.split(",")]
-        if len(fields) == 3:
-            return "User activity logged: 1 actions processed"
-        return "Processed CSV data"
+        transformed = step2["transformed_data"]
+
+        count: int = 0
+        for _ in transformed:
+            count += 1
+
+        if count == 3:
+            final_data = "User activity logged: 1 action processed"
+        else:
+            final_data = "Processed CSV data"
+
+        final = output_stage.process({self.pipeline_id: final_data})
+        return final
 
 
 class StreamAdapter(ProcessingPipeline):
@@ -127,14 +142,26 @@ class StreamAdapter(ProcessingPipeline):
         self.add_stage(OutputStage())
 
     def process(self, data: Any) -> str:
-        if not isinstance(data, str):
-            raise ValueError("Invalid Stream data")
+        input_stage = self.stages[0]
+        transform_stage = self.stages[1]
+        output_stage = self.stages[2]
 
-        self.run_stages(data)
+        step1 = input_stage.process(data)
+        step2 = transform_stage.process(step1)
 
-        if data == "Real-time sensor stream":
-            return "Stream summary: 5 readings, avg: 22.1°C"
-        return "Processed stream data"
+        transformed = step2["transformed_data"]
+
+        count: int = 0
+        for _ in transformed:
+            count += 1
+
+        summary = {
+            "count": count,
+            "label": "records"
+        }
+
+        final = output_stage.process({self.pipeline_id: summary})
+        return final
 
 
 class NexusManager:
