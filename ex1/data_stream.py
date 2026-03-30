@@ -9,18 +9,16 @@ class DataStream(ABC):
         self.stream_id = stream_id
         self.count: int = 0
 
-
     @abstractmethod
-    # devuelve un resume textual
     def process_batch(self, data_batch: List[Any]) -> str:
         pass
 
-    # devuelve una lista filtrada
-    def filter_data(self, data_batch: List[Any], criteria: Optional[str] = None) -> List[Any]:
-        pass
+    def filter_data(
+            self, data_batch: List[Any], criteria: Optional[str] = None
+    ) -> List[Any]:
+        return data_batch
 
-    # devuelve un diccionario
-    def get_stats(self) -> Dict[str, Union[str, int, float]]: # what is the return value?
+    def get_stats(self) -> Dict[str, Union[str, int, float]]:
         return {
             "stream_id": self.stream_id,
             "type": "Generic Data",
@@ -33,14 +31,16 @@ class SensorStream(DataStream):
         super().__init__(stream_id)
         self.stream_type = "Environmental Data"
 
-
     def process_batch(self, data_batch: List[str]) -> str:
         self.count: int = 0
         temp_count: int = 0
         temp_sum: float = 0
         for batch in data_batch:
             self.count += 1
-            key, value = batch.split(":")
+            try:
+                key, value = batch.split(":")
+            except ValueError:
+                continue
             if key == "temp":
                 temp_count += 1
                 try:
@@ -50,27 +50,30 @@ class SensorStream(DataStream):
                     return f"Sensor analysis: {self.count} readings processed"
                 else:
                     return (
-                    f"Sensor analysis: {self.count} readings processed, "
-                    f"avg temp: {avg_temp:.1f}°C"
-                )
+                        f"Sensor analysis: {self.count} readings processed, "
+                        f"avg temp: {avg_temp:.1f}°C"
+                    )
         return f"Sensor analysis: {self.count} readings processed"
 
-    def get_stats(self) -> Dict[str, Union[str, int, float]]: # what is the return value?
-        return {
-            "stream_id": self.stream_id,
-            "type": self.stream_type,
-            "count": self.count,
-        }
-    
-    def filter_data(self, data_batch: List[Any], criteria: Optional[str] = None) -> List[Any]:
+    def get_stats(self) -> Dict[str, Union[str, int, float]]:
+        base = super().get_stats()
+        base["type"] = self.stream_type
+        return base
+
+    def filter_data(
+            self, data_batch: List[Any], criteria: Optional[str] = None
+    ) -> List[Any]:
         if criteria != "high-priority":
             return data_batch
 
-        return [
-            item
-            for item in data_batch
-            if ":" in item and float(item.split(":")[1]) >= 60
-        ]
+        try:
+            return [
+                item
+                for item in data_batch
+                if ":" in item and float(item.split(":")[1]) >= 60
+            ]
+        except (ValueError, IndexError, AttributeError):
+            return data_batch
 
 
 class TransactionStream(DataStream):
@@ -78,32 +81,36 @@ class TransactionStream(DataStream):
         super().__init__(stream_id)
         self.stream_type = "Financial Data"
 
-
     def process_batch(self, data_batch: List[str]) -> str:
         self.count: int = 0
         net: int = 0
         for batch in data_batch:
+            try:
+                key, value = batch.split(":")
+                amount = int(value)
+            except (ValueError, TypeError):
+                continue
+
             self.count += 1
-            key, value = batch.split(":")
+
             if key == "sell":
-                net -= int(value) # proteger con try?
-            elif key == "buy":    
-                net += int(value) # proteger con try?
-        
+                net -= amount
+            elif key == "buy":
+                net += amount
+
         return (
             f"Transaction analysis: {self.count} operations, "
             f"net flow: {net:+} units"
         )
 
+    def get_stats(self) -> Dict[str, Union[str, int, float]]:
+        base = super().get_stats()
+        base["type"] = self.stream_type
+        return base
 
-    def get_stats(self) -> Dict[str, Union[str, int, float]]: # what is the return value?
-        return {
-            "stream_id": self.stream_id,
-            "type": self.stream_type,
-            "count": self.count,
-        }
-    
-    def filter_data(self, data_batch: List[Any], criteria: Optional[str] = None) -> List[Any]:
+    def filter_data(
+            self, data_batch: List[Any], criteria: Optional[str] = None
+    ) -> List[Any]:
         if criteria != "high-priority":
             return data_batch
 
@@ -119,7 +126,6 @@ class EventStream(DataStream):
         super().__init__(stream_id)
         self.stream_type = "System Events"
 
-
     def process_batch(self, data_batch: List[str]) -> str:
         error_count: int = 0
         self.count: int = 0
@@ -127,21 +133,20 @@ class EventStream(DataStream):
             self.count += 1
             if data == "error":
                 error_count += 1
-        
+
         return (
             f"Event analysis: {self.count} events, "
             f"{error_count} error detected"
         )
 
+    def get_stats(self) -> Dict[str, Union[str, int, float]]:
+        base = super().get_stats()
+        base["type"] = self.stream_type
+        return base
 
-    def get_stats(self) -> Dict[str, Union[str, int, float]]: # what is the return value?
-        return {
-            "stream_id": self.stream_id,
-            "type": self.stream_type,
-            "count": self.count,
-        }
-
-    def filter_data(self, data_batch: List[Any], criteria: Optional[str] = None) -> List[Any]:
+    def filter_data(
+            self, data_batch: List[Any], criteria: Optional[str] = None
+    ) -> List[Any]:
         if criteria != "high-priority":
             return data_batch
 
@@ -153,8 +158,10 @@ class EventStream(DataStream):
 
 
 class StreamProcessor():
-    
-    def stream_batch_process(self, stream: DataStream, batch: List[Any]) -> str:
+
+    def stream_batch_process(
+        self, stream: DataStream, batch: List[Any]
+    ) -> None:
         stream.process_batch(batch)
         if isinstance(stream, SensorStream):
             print(f"- Sensor data: {stream.count} readings processed")
@@ -192,21 +199,21 @@ def main() -> None:
         "=== Polymorphic Stream Processing ===\n",
         "Processing mixed stream types through unified interface...\n"
     )
-    
+
     stream_processor = StreamProcessor()
-    mixed_batch: List[set[DataStream, List[str]]] = [
+    mixed_batch: List[tuple[DataStream, List[str]]] = [
         (sensor_stream, ["humidity:63", "pressure:1011"]),
         (transaction_stream, ["buy:100", "buy:75", "buy:70", "buy:75"]),
         (event_stream, ["login", "error", "logout"]),
     ]
-    
+
     print("Batch 1 Results:")
     for stream, data in mixed_batch:
         stream_processor.stream_batch_process(stream, data)
     print()
 
     filtered_sensor = sensor_stream.filter_data(sensor_batch, "high-priority")
-    filtered_transaction = transaction_stream.filter_data(trans_batch, "high-priority")
+    filtered_tx = transaction_stream.filter_data(trans_batch, "high-priority")
 
     print("Stream filtering active: High-priority data only")
 
@@ -215,7 +222,7 @@ def main() -> None:
         sensor_count += 1
 
     transaction_count = 0
-    for _ in filtered_transaction:
+    for _ in filtered_tx:
         transaction_count += 1
 
     print(
