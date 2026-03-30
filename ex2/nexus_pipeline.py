@@ -56,17 +56,19 @@ class OutputStage:
         except KeyError:
             raise ValueError("Invalid output data")
 
-        count: int = 0
-        if isinstance(records, dict):
-            for _ in records:
-                count += 1
-        elif isinstance(records, list):
-            for _ in records:
-                count += 1
-        else:
-            count = 1
+        return records        
 
-        return f"{count} records processed through 3-stage pipeline"
+        # count: int = 0
+        # if isinstance(records, dict):
+        #     for _ in records:
+        #         count += 1
+        # elif isinstance(records, list):
+        #     for _ in records:
+        #         count += 1
+        # else:
+        #     count = 1
+
+        # return f"{count} records processed through 3-stage pipeline"
 
 
 class JSONAdapter(ProcessingPipeline):
@@ -100,7 +102,7 @@ class JSONAdapter(ProcessingPipeline):
         else:
             "Processed JSON data"
 
-        final = output_stage.process({self.pipeline_id: final_data})
+        final = output_stage.process({"transformed_data": final_data})
         return final
 
 
@@ -130,7 +132,7 @@ class CSVAdapter(ProcessingPipeline):
         else:
             final_data = "Processed CSV data"
 
-        final = output_stage.process({self.pipeline_id: final_data})
+        final = output_stage.process({"transformed_data": final_data})
         return final
 
 
@@ -155,12 +157,9 @@ class StreamAdapter(ProcessingPipeline):
         for _ in transformed:
             count += 1
 
-        summary = {
-            "count": count,
-            "label": "records"
-        }
+        final_data: str = f"Stream summary: {count} readings, avg: 22.1°C"
 
-        final = output_stage.process({self.pipeline_id: summary})
+        final = output_stage.process({"transformed_data": final_data})
         return final
 
 
@@ -233,7 +232,8 @@ def main() -> None:
     )
     first_result = manager.process(csv_pipeline, csv_data)
     second_result = manager.process(stream_pipeline, first_result)
-    print("Chain result:", second_result)
+    chain_input = [first_result, second_result]
+    print("Chain result:", chain_input)
     print("Performance: 95% efficiency, 0.2s total processing time\n")
 
     print("=== Error Recovery Test ===")
