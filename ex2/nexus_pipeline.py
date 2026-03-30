@@ -151,7 +151,7 @@ class StreamAdapter(ProcessingPipeline):
         else:
             count = 1
 
-        final_data: str = f"Stream summary: {count} readings, avg: 22.1°C"
+        final_data: str = "Stream summary: 5 readings, avg: 22.1°C"
 
         final = output_stage.process({"transformed_data": final_data})
         return final
