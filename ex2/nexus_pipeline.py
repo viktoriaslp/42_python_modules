@@ -148,8 +148,11 @@ class StreamAdapter(ProcessingPipeline):
         transform_stage = self.stages[1]
         output_stage = self.stages[2]
 
+        print("data:", data)
         step1 = input_stage.process(data)
+        print("step1:", step1)
         step2 = transform_stage.process(step1)
+        print("step2:", step2)
 
         transformed = step2["transformed_data"]
 
@@ -231,8 +234,9 @@ def main() -> None:
         sep="\n"
     )
     first_result = manager.process(csv_pipeline, csv_data)
-    second_result = manager.process(stream_pipeline, first_result)
-    chain_input = [first_result, second_result]
+    second_result = manager.process(json_pipeline, json_data)
+    chain_input = first_result + "," + second_result
+    final_result = manager.process(stream_pipeline, chain_input)
     print("Chain result:", chain_input)
     print("Performance: 95% efficiency, 0.2s total processing time\n")
 
