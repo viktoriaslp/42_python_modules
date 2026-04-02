@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "matrix-project"
+version = "0.1.0"
+description = "Data analysis in the Matrix"
+authors = ["vslyunko"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pandas = "*"
+numpy = "*"
+matplotlib = "*"
+requests = "*"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
