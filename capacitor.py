@@ -1,9 +1,9 @@
-from ex1 import HealingCreatureFactory, TransformCreatureFactory, CreatureFactory
+from ex1 import HealingCreatureFactory, TransformCreatureFactory
+
 
 def main() -> None:
     healing_factory = HealingCreatureFactory()
     transform_factory = TransformCreatureFactory()
-
 
     print("Testing Creature with healing capability")
     print(" base:")
@@ -38,4 +38,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-  

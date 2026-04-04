@@ -1,11 +1,11 @@
 from abc import ABC, abstractmethod
 
 
-class TransformCapability(ABC):    
+class TransformCapability(ABC):
     @abstractmethod
-    def transform(self) -> None:
+    def transform(self) -> str:
         pass
 
     @abstractmethod
-    def revert(self) -> None:
+    def revert(self) -> str:
         pass

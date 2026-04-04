@@ -3,5 +3,5 @@ from abc import ABC, abstractmethod
 
 class HealCapability(ABC):
     @abstractmethod
-    def heal(self) -> None:
+    def heal(self) -> str:
         pass
