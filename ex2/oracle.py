@@ -21,8 +21,16 @@ def main() -> None:
     #  4. Show configuration
     print("Configuration loaded:")
     print(f"Mode: {mode}")
-    print(f"Database: {db_url}")
-    print(f"API Access: {api_key}")
+    if db_url == "localhost":
+        print("Database: Connected to local instance")
+    else:
+        print("Database: Connected to remote instance")
+
+    if api_key:
+        print("API Access: Authenticated")
+    else:
+        print("API Access: Missing")
+
     print(f"Log Level: {log_level}")
     if endpoint:
         print("Zion Network: Online")
