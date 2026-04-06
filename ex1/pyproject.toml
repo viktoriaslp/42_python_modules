@@ -10,7 +10,6 @@ python = "^3.10"
 pandas = "*"
 numpy = "*"
 matplotlib = "*"
-requests = "*"
 
 [build-system]
 requires = ["poetry-core"]

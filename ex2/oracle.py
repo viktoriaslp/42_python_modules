@@ -16,8 +16,6 @@ def main() -> None:
     log_level = os.getenv("LOG_LEVEL")
     endpoint = os.getenv("ZION_ENDPOINT")
 
-
-
     #  4. Show configuration
     print("Configuration loaded:")
     print(f"Mode: {mode}")
@@ -46,10 +44,8 @@ def main() -> None:
 
     if mode == "development":
         print("Running in DEVELOPMENT mode")
-        print(f"API_KEY (visible): {api_key}")
     elif mode == "production":
         print("Running in PRODUCTION mode")
-        print(f"API_KEY IS HIDDEN FOR SECURITY")
     else:
         print("[ERROR] Invalid MATRIX_MODE")
     print()

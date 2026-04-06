@@ -14,6 +14,12 @@ if sys.prefix == sys.base_prefix:
     print("WARNING: You're in the global environment!")
     print("The machines can see everything you install.\n")
 
+    print("Package installation path:")
+    # Get the directories where Python installs packages
+    paths = site.getsitepackages()
+    for path in paths:
+        print(path)
+
     print(
         "To enter the construct, run:",
         "python -m venv matrix_env",
