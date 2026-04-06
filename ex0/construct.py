@@ -10,18 +10,15 @@ if sys.prefix == sys.base_prefix:
 
     # Path to the Python interpreter that is currently running this script
     print(f"Current Python: {sys.executable}")
-    print("Virtual Environment: None detected\n") 
-    print("WARNING: You're in the global environment!") 
+    print("Virtual Environment: None detected\n")
+    print("WARNING: You're in the global environment!")
     print("The machines can see everything you install.\n")
 
     print(
         "To enter the construct, run:",
         "python -m venv matrix_env",
         "source matrix_env/bin/activate # On Unix",
-        "matrix_env",
-        "Scripts",
-        "activate",
-        "# On Windows",
+        "matrix_env/Scripts/activate # On Windows",
         sep="\n"
     )
 
@@ -29,7 +26,7 @@ if sys.prefix == sys.base_prefix:
 else:
     print("MATRIX STATUS: Welcome to the construct\n")
     print(f"Current Python: {sys.executable}")
-    
+
     # Extract the environment name from its path
     env_name = os.path.basename(sys.prefix)
     print(f"Virtual Environment: {env_name}")
