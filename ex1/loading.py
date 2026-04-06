@@ -32,6 +32,7 @@ def main() -> None:
 
     try:
         matplotlib = importlib.import_module("matplotlib")
+        plt = importlib.import_module("matplotlib.pyplot")
         print(
             f"[OK] matplotlib {matplotlib.__version__} - Visualization ready"
         )
@@ -40,7 +41,7 @@ def main() -> None:
         all_ok = False
 
     if not all_ok:
-        print("Please install missing dependencies and try again.")
+        print("\nPlease install missing dependencies and try again.")
         print(
             "Using pip:",
             "  python3 -m venv venv",
@@ -55,10 +56,10 @@ def main() -> None:
 
     file_name: str = "matrix_analysis.png"
 
-    print("Analyzing Matrix data...")
+    print("\nAnalyzing Matrix data...")
 
     #  1. Generate data with numpy
-    data = numpy.random.rand(1000)
+    data = numpy.random.randint(0, 1000, size=1000)
 
     #  2. Organize data with panda
     df = pandas.DataFrame(data, columns=["signal"])
@@ -67,10 +68,10 @@ def main() -> None:
     print("Generating visualization")
 
     #  3. Generate plot with matplotlib
-    matplotlib.pyplot.plot(df["signal"])
+    plt.plot(df["signal"])
 
     #  4. Save image
-    matplotlib.pyplot.savefig(file_name)
+    plt.savefig(file_name)
 
     print("\nAnalysis complete!")
     print(f"Results saved to: {file_name}")
