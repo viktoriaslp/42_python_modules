@@ -4,9 +4,9 @@ from ex1.transform_capability import TransformCapability
 
 
 class Shiftling(Creature, TransformCapability):
-    def __init__(self, name: str, creature_type: str):
+    def __init__(self, name: str, creature_type: str) -> None:
         super().__init__(name, creature_type)
-        self.transformed = False
+        self.transformed: bool = False
 
     def attack(self) -> str:
         if not self.transformed:
@@ -24,9 +24,9 @@ class Shiftling(Creature, TransformCapability):
 
 
 class Morphagon(Creature, TransformCapability):
-    def __init__(self, name: str, creature_type: str):
+    def __init__(self, name: str, creature_type: str) -> None:
         super().__init__(name, creature_type)
-        self.transformed = False
+        self.transformed: bool = False
 
     def attack(self) -> str:
         if not self.transformed:

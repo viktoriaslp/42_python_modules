@@ -1,9 +1,10 @@
 from ex0.creature_factory import CreatureFactory
+from ex0.creature import Creature
 from ex0 import FlameFactory, AquaFactory
 
 
 def testing_factory(factory: CreatureFactory) -> None:
-    creatures = []
+    creatures: list[Creature] = []
     creatures.append(factory.create_base())
     creatures.append(factory.create_evolved())
 
@@ -12,9 +13,11 @@ def testing_factory(factory: CreatureFactory) -> None:
         print(creature.attack())
 
 
-def base_fight(fire_factory: CreatureFactory, aqua_actory: CreatureFactory) -> None:
+def base_fight(
+        fire_factory: CreatureFactory, aqua_factory: CreatureFactory
+) -> None:
     fire_creature = fire_factory.create_base()
-    aqua_creature = aqua_actory.create_base()
+    aqua_creature = aqua_factory.create_base()
 
     print(fire_creature.describe())
     print(" vs.")

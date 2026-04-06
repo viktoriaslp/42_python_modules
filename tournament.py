@@ -1,3 +1,6 @@
+from typing import List, Tuple
+from ex0.creature_factory import CreatureFactory
+from ex2.battle_strategy import BattleStrategy
 from ex0 import FlameFactory, AquaFactory
 from ex1 import HealingCreatureFactory, TransformCreatureFactory
 from ex2 import (
@@ -8,7 +11,7 @@ from ex2 import (
 )
 
 
-def battle(opponents: list[tuple]) -> None:
+def battle(opponents: List[Tuple[CreatureFactory, BattleStrategy]]) -> None:
     for i, first in enumerate(opponents):
         for second in opponents[i + 1:]:
             factory_one, strategy_one = first
