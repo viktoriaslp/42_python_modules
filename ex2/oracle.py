@@ -16,6 +16,12 @@ def main() -> None:
     log_level = os.getenv("LOG_LEVEL")
     endpoint = os.getenv("ZION_ENDPOINT")
 
+    #  3. Handle errors
+    if not all([mode, db_url, api_key, log_level, endpoint]):
+        print("[ERROR] Missing configuration!")
+        print("Please check you .env file")
+        sys.exit(1)
+
     #  4. Show configuration
     print("Configuration loaded:")
     print(f"Mode: {mode}")
@@ -35,12 +41,6 @@ def main() -> None:
     else:
         print("Zion Network: Offline")
     print()
-
-    #  3. Handle errors
-    if not all([mode, db_url, api_key, log_level, endpoint]):
-        print("[ERROR] Missing configuration!")
-        print("Please check you .env file")
-        return
 
     if mode == "development":
         print("Running in DEVELOPMENT mode")
