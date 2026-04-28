@@ -3,8 +3,9 @@ from enum import Enum
 from pydantic import BaseModel, Field, ValidationError, model_validator
 from typing_extensions import Self
 
+
 class Rank(str, Enum):
-    cadet ="cadet"
+    cadet = "cadet"
     officer = "officer"
     lieutenant = "lieutenant"
     captain = "captain"
@@ -29,26 +30,27 @@ class SpaceMission(BaseModel):
     duration_days: int = Field(ge=1, le=3650)
     crew: list[CrewMember] = Field(min_length=1, max_length=12)
     mission_status: str = Field(default="planned")
-    budget_millions: float = Field(ge=0, le=10000)
+    budget_millions: float = Field(ge=1.0, le=10000.0)
 
     @model_validator(mode="after")
     def safety_requirements(self) -> Self:
         if not self.mission_id.startswith("M"):
             raise ValueError('Mission ID must start with "M"')
-        
+
         correct_ranking = any(
-            crew_member.rank == Rank.commander
-            or crew_member.rank == Rank.captain
+            crew_member.rank in (Rank.commander, Rank.captain)
             for crew_member in self.crew
         )
         if not correct_ranking:
-            raise ValueError("Must have at least one Commander or Captain")
-        
-        experienced_crew = any(
+            raise ValueError(
+                "Mission must have at least one Commander or Captain"
+            )
+
+        exp_count = sum(
             crew_member.years_experience >= 5
             for crew_member in self.crew
         )
-        if self.duration_days > 365 and not experienced_crew:
+        if self.duration_days > 365 and exp_count * 2 < len(self.crew):
             raise ValueError(
                 "Long missions (> 365 days)"
                 " need 50% experienced crew (5+ years)"
@@ -63,14 +65,14 @@ class SpaceMission(BaseModel):
             f"ID: {self.mission_id}",
             f"Destination: {self.destination}",
             f"Duration: {self.duration_days} days",
-            f"Budget: ${self.budget_millions}M",
+            f"Budget: ${self.budget_millions:.1f}M",
             f"Crew size: {len(self.crew)}",
-            f"Crew members:",
+            "Crew members:",
             sep="\n"
         )
         for member in self.crew:
             print(
-                f"- {member.name} ({member.rank}) "
+                f"- {member.name} ({member.rank.value}) "
                 f"- {member.specialization}"
             )
 
@@ -86,7 +88,7 @@ def main() -> None:
         is_active=True,
     )
 
-    jhon = CrewMember(
+    john = CrewMember(
         member_id="002",
         name="John Smith",
         rank=Rank.lieutenant,
@@ -112,7 +114,7 @@ def main() -> None:
         destination="Mars",
         launch_date=datetime.now(),
         duration_days=900,
-        crew=[sarah, jhon, alice],
+        crew=[sarah, john, alice],
         budget_millions=2500,
     )
 
@@ -131,13 +133,13 @@ def main() -> None:
             destination="Venus",
             launch_date=datetime.now(),
             duration_days=200,
-            crew=[jhon, alice],
+            crew=[john, alice],
             budget_millions=1900,
         )
         venus_mission.show_info()
     except ValidationError as e:
         for err in e.errors():
-            print(err["msg"])
+            print(err["msg"].removeprefix("Value error, "))
 
 
 if __name__ == "__main__":

@@ -16,7 +16,7 @@ class AlienContact(BaseModel):
     timestamp: datetime
     location: str = Field(min_length=3, max_length=100)
     contact_type: ContactType
-    signal_strength: float = Field(ge=1, le=10)
+    signal_strength: float = Field(ge=0.0, le=10.0)
     duration_minutes: int = Field(ge=1, le=1440)
     witness_count: int = Field(ge=1, le=100)
     message_received: str | None = Field(default=None, max_length=500)
@@ -26,13 +26,15 @@ class AlienContact(BaseModel):
     def business_rules(self) -> Self:
         if not self.contact_id.startswith("AC"):
             raise ValueError('Contact ID must start with "AC"')
-        if self.contact_type == "physical" and not self.is_verified:
+        if self.contact_type == ContactType.physical and not self.is_verified:
             raise ValueError("Physical contact reports must be verified")
-        if self.contact_type == "telepathic" and self.witness_count < 3:
+
+        is_telepathic = self.contact_type == ContactType.telepathic
+        if is_telepathic and self.witness_count < 3:
             raise ValueError(
                 "Telepathic contact requires at least 3 witnesses"
             )
-        if self.signal_strength > 7.0 and self.message_received is None:
+        if self.signal_strength > 7.0 and not self.message_received:
             raise ValueError(
                 "Strong signals (> 7.0) should include received messages"
             )
@@ -40,9 +42,8 @@ class AlienContact(BaseModel):
 
     def show_info(self) -> None:
         print(
-            "Valid contact report:",
             f"ID: {self.contact_id}",
-            f"Type: {self.contact_type}",
+            f"Type: {self.contact_type.value}",
             f"Location: {self.location}",
             f"Signal: {self.signal_strength}/10",
             f"Duration: {self.duration_minutes} minutes",
@@ -65,7 +66,9 @@ def main() -> None:
         witness_count=5,
         message_received="Greetings from Zeta Reticuli",
     )
+    print("Valid contact report:")
     first_contact.show_info()
+
     print()
 
     print("======================================")
@@ -84,7 +87,7 @@ def main() -> None:
         second_contact.show_info()
     except ValidationError as e:
         for err in e.errors():
-            print(err["msg"])
+            print(err["msg"].removeprefix("Value error, "))
 
 
 if __name__ == "__main__":
