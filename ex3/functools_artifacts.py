@@ -66,10 +66,20 @@ def main() -> None:
     spell_powers = [10, 20, 40, 30]
     fibonacci_tests = [0, 1, 10, 15]
 
+    def enchantment(power: int, element: str, target: str) -> str:
+        return f"Enchanted {target} with {element} for {power} power"
+
     print("Testing spell reducer...")
     print(f"Sum: {spell_reducer(spell_powers, 'add')}")
     print(f"Product: {spell_reducer(spell_powers, 'multiply')}")
     print(f"Max: {spell_reducer(spell_powers, 'max')}")
+    print()
+
+    print("Testing partial enchanter...")
+
+    enchanter = partial_enchanter(enchantment)
+    print(enchanter["fire"]("Sword"))
+    print(enchanter["ice"]("Shield"))
     print()
 
     print("Testing memoized fibonacci...")
