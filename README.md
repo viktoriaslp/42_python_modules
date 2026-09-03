@@ -15,8 +15,6 @@
   <img src="https://img.shields.io/badge/Dependency-Management-FFD43B" alt="Dependency Management">
 </p>
 
-> A progressive collection of Python modules completed as part of the 42 Málaga curriculum — from core language fundamentals to data engineering tools and advanced Python patterns.
-
 ---
 ## Overview
 
